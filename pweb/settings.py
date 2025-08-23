@@ -79,11 +79,6 @@ DATABASES = {
     'default': dj_database_url.parse('postgresql://neondb_owner:npg_Qx9iUsqlaMN1@ep-twilight-shape-acmcyxfb-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require')
 }
 
-'postgresql://ep-twilight-shape-acmcyxfb-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require'
-
-user: neondb_owner
-password: npg_Qx9iUsqlaMN1
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
