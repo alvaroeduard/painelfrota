@@ -1,0 +1,135 @@
+{% extends 'frota/base.html' %}
+
+{% block titulo %}Gerenciar Departamentos{% endblock %}
+
+{% block conteudo %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Gerenciar Departamentos</h4>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#novoDepartamentoModal">
+            <i class="fas fa-plus"></i> Novo Departamento
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center mb-4">
+            <div class="col-md-8">
+                <input type="text" name="pesquisa" class="form-control" placeholder="Pesquisar por nome ou sigla..." value="{{ request.GET.pesquisa|default:'' }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+                <a href="{% url 'gerenciar_departamentos' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Recarregar</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Sigla</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for depto in departamentos %}
+                    <tr>
+                        <td>{{ depto.nome }}</td>
+                        <td>{{ depto.sigla }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarDepartamentoModal-{{ depto.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirDepartamentoModal-{{ depto.id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">Nenhum departamento cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="novoDepartamentoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'gerenciar_departamentos' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Departamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="id_nome" class="form-label">Nome:</label>
+                        {{ form.nome }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_sigla" class="form-label">Sigla (em maiúsculo):</label>
+                        {{ form.sigla }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for depto in departamentos %}
+<div class="modal fade" id="editarDepartamentoModal-{{ depto.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'editar_departamento' depto.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Departamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome:</label>
+                        <input type="text" name="nome" class="form-control" value="{{ depto.nome }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sigla:</label>
+                        <input type="text" name="sigla" class="form-control" value="{{ depto.sigla }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="excluirDepartamentoModal-{{ depto.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza de que deseja excluir o departamento "<strong>{{ depto.nome }}</strong>"?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+                <a href="{% url 'excluir_departamento' depto.id %}" class="btn btn-danger">Sim, excluir</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

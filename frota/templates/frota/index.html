@@ -1,132 +1,187 @@
-{% extends 'base.html' %}
+{% extends 'frota/base.html' %}
 
-{% block titulo %} Pagina Inicial {% endblock %}
+{% block titulo %}Disponibilidade da Frota{% endblock %}
 
 {% block conteudo %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">Consulta de Disponibilidade da Frota</h4>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center mb-4">
+            <div class="col-md-4">
+                <input type="text" name="placa" class="form-control" placeholder="Pesquisar por placa..." value="{{ request.GET.placa|default:'' }}">
+            </div>
+            <div class="col-md-4">
+                <select name="departamento" class="form-select">
+                    <option value="">Filtrar por departamento...</option>
+                    {% for depto in departamentos %}
+                    <option value="{{ depto.id }}" {% if depto.id == depto_id_selecionado %}selected{% endif %}>
+                        {{ depto.sigla }} - {{ depto.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+                <a href="{% url 'index' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Limpar</a>
+            </div>
+        </form>
 
-    <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Pesquisa por Placa</h5>
-                <form class="row g-3 mb-4">
-                    <div class="col-md-8">
-                        <input type="text" class="form-control" placeholder="Digite a placa">
-                    </div>
-                    <br>
-                    <div class="col-mb-4">
-                        <button type="button" class="btn btn-primary me-2"><i class="fas fa-search"></i> Pesquisar</button>
-                        <button type="button" class="btn btn-secondary me-2"><i class="fas fa-sync-alt"></i> Recarregar</button>
-                    </div>
-                </form>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Prefixo</th>
+                        <th>Modelo</th>
+                        <th>Placa</th>
+                        <th>Departamento</th>
+                        <th>Status</th>
+                        <th>OS/Ticket</th>
+                        <th>Status OS</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for veiculo in veiculos %}
+                    <tr>
+                        <td>{{ veiculo.prefixo }}</td>
+                        <td>{{ veiculo.modelo }}</td>
+                        <td>{{ veiculo.placa }}</td>
+                        <td>{{ veiculo.departamento.sigla }}</td>
+                        <td>
+                            {% if veiculo.status == 'Disponível' %}
+                            <span class="badge badge-disponivel">{{ veiculo.status }}</span>
+                            {% elif veiculo.status == 'Em Manutenção' %}
+                            <span class="badge badge-manutencao">{{ veiculo.status }}</span>
+                            {% elif veiculo.status == 'Indisponível' %}
+                            <span class="badge badge-indisponivel">{{ veiculo.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if veiculo.status == 'Em Manutenção' and veiculo.manutencao %}
+                                {{ veiculo.manutencao.numero_os }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if veiculo.status == 'Em Manutenção' and veiculo.manutencao %}
+                                {{ veiculo.manutencao.status_os }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if veiculo.status == 'Em Manutenção' %}
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesManutencaoModal"
+                                data-placa="{{ veiculo.placa }}"
+                                data-prefixo="{{ veiculo.prefixo }}"
+                                data-modelo="{{ veiculo.modelo }}"
+                                data-servicos="{{ veiculo.manutencao.servicos }}"
+                                data-entrada="{{ veiculo.manutencao.data_entrada|date:'d/m/Y' }}"
+                                data-previsao="{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}"
+                                data-os="{{ veiculo.manutencao.numero_os }}"
+                                data-statusos="{{ veiculo.manutencao.status_os }}">
+                                <i class="fas fa-wrench"></i> Detalhes
+                            </button>
+                            {% elif veiculo.status == 'Indisponível' %}
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesIndisponivelModal"
+                                data-placa="{{ veiculo.placa }}"
+                                data-prefixo="{{ veiculo.prefixo }}"
+                                data-modelo="{{ veiculo.modelo }}"
+                                data-motivo="{{ veiculo.indisponibilidade.motivo }}">
+                                <i class="fas fa-info-circle"></i> Detalhes
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">Nenhum veículo encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-                <table class="table table-striped" id="productTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Descrição</th>
-                            <th>Situação</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Pizza</td>
-                            <td><span class="badge bg-success">Ativo</span></td>
-                            <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalhes"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm btn-remove" data-bs-toggle="tooltip" data-bs-placement="top" title="Remover"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Refrigerante</td>
-                            <td><span class="badge bg-success">Ativo</span></td>
-                            <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalhes"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm btn-remove" data-bs-toggle="tooltip" data-bs-placement="top" title="Remover"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Cajuína</td>
-                            <td><span class="badge bg-danger">Inativo</span></td>
-                            <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalhes"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm btn-remove" data-bs-toggle="tooltip" data-bs-placement="top" title="Remover"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Borda</td>
-                            <td><span class="badge bg-success">Ativo</span></td>
-                            <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalhes"><i class="fas fa-eye"></i></button>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-danger btn-sm btn-remove" data-bs-toggle="tooltip" data-bs-placement="top" title="Remover"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+<div class="modal fade" id="detalhesManutencaoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes da Manutenção</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Placa:</strong> <span id="manut-placa"></span></p>
+                <p><strong>Prefixo:</strong> <span id="manut-prefixo"></span></p>
+                <p><strong>Modelo:</strong> <span id="manut-modelo"></span></p>
+                <hr>
+                <p><strong>Serviços:</strong> <span id="manut-servicos"></span></p>
+                <p><strong>Data de Entrada:</strong> <span id="manut-entrada"></span></p>
+                <p><strong>Previsão de Saída:</strong> <span id="manut-previsao"></span></p>
+                <p><strong>Número da OS/Ticket:</strong> <span id="manut-os"></span></p>
+                <p><strong>Status da OS:</strong> <span id="manut-statusos"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newProductModalLabel">Novo Produto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newProductForm">
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Nome do Produto</label>
-                            <input type="text" class="form-control" id="productName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productPrice" class="form-label">Preço</label>
-                            <input type="number" class="form-control" id="productPrice" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productCategory" class="form-label">Categoria</label>
-                            <input type="text" class="form-control" id="productCategory" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productStatus" class="form-label">Situação</label>
-                            <select class="form-select" id="productStatus" required>
-                                <option value="Ativo">Ativo</option>
-                                <option value="Inativo">Inativo</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveProductBtn"><i class="fas fa-save"></i> Salvar</button>
-                </div>
+<div class="modal fade" id="detalhesIndisponivelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes da Indisponibilidade</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Placa:</strong> <span id="indisp-placa"></span></p>
+                <p><strong>Prefixo:</strong> <span id="indisp-prefixo"></span></p>
+                <p><strong>Modelo:</strong> <span id="indisp-modelo"></span></p>
+                <hr>
+                <p><strong>Motivo:</strong> <span id="indisp-motivo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Confirmação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Deseja realmente remover esse registro?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Não</button>
-                    <button type="button" class="btn btn-danger" id="confirmRemove"><i class="fas fa-check"></i> Sim</button>
-                </div>
-            </div>
-        </div>
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const manutencaoModal = document.getElementById('detalhesManutencaoModal');
+    if(manutencaoModal) {
+        manutencaoModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('manut-placa').textContent = button.getAttribute('data-placa');
+            document.getElementById('manut-prefixo').textContent = button.getAttribute('data-prefixo');
+            document.getElementById('manut-modelo').textContent = button.getAttribute('data-modelo');
+            document.getElementById('manut-servicos').textContent = button.getAttribute('data-servicos');
+            document.getElementById('manut-entrada').textContent = button.getAttribute('data-entrada');
+            document.getElementById('manut-previsao').textContent = button.getAttribute('data-previsao');
+            document.getElementById('manut-os').textContent = button.getAttribute('data-os');
+            document.getElementById('manut-statusos').textContent = button.getAttribute('data-statusos');
+        });
+    }
 
+    const indisponivelModal = document.getElementById('detalhesIndisponivelModal');
+    if(indisponivelModal) {
+        indisponivelModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('indisp-placa').textContent = button.getAttribute('data-placa');
+            document.getElementById('indisp-prefixo').textContent = button.getAttribute('data-prefixo');
+            document.getElementById('indisp-modelo').textContent = button.getAttribute('data-modelo');
+            document.getElementById('indisp-motivo').textContent = button.getAttribute('data-motivo');
+        });
+    }
+});
+</script>
 {% endblock %}
