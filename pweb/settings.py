@@ -11,9 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home',
+    'frota',
 ]
 
 MIDDLEWARE = [
@@ -74,12 +76,13 @@ WSGI_APPLICATION = 'pweb.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse('postgresql://neondb_owner:npg_Qx9iUsqlaMN1@ep-twilight-shape-acmcyxfb-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require')
 }
 
+'postgresql://ep-twilight-shape-acmcyxfb-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require'
+
+user: neondb_owner
+password: npg_Qx9iUsqlaMN1
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
