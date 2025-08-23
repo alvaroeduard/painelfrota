@@ -1,0 +1,114 @@
+{% extends 'frota/base.html' %}
+
+{% block titulo %}Gerenciar Modelos de Veículos{% endblock %}
+
+{% block conteudo %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Gerenciar Modelos de Veículos</h4>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#novoModeloModal">
+            <i class="fas fa-plus"></i> Novo Modelo
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center mb-4">
+            <div class="col-md-8">
+                <input type="text" name="pesquisa" class="form-control" placeholder="Pesquisar por nome do modelo..." value="{{ request.GET.pesquisa|default:'' }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+                <a href="{% url 'gerenciar_modelos' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Recarregar</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome do Modelo</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for modelo in modelos %}
+                    <tr>
+                        <td>{{ modelo.nome }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModeloModal-{{ modelo.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirModeloModal-{{ modelo.id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center">Nenhum modelo cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="novoModeloModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'gerenciar_modelos' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Modelo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for modelo in modelos %}
+<div class="modal fade" id="editarModeloModal-{{ modelo.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'editar_modelo' modelo.id %}">
+                {% csrf_token %}
+                <div class="modal-header"><h5 class="modal-title">Editar Modelo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome:</label>
+                        <input type="text" name="nome" class="form-control" value="{{ modelo.nome }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="excluirModeloModal-{{ modelo.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Confirmar Exclusão</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o modelo "<strong>{{ modelo.nome }}</strong>"?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+                <a href="{% url 'excluir_modelo' modelo.id %}" class="btn btn-danger">Sim, excluir</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Veiculo, Departamento, Manutencao, Indisponibilidade, UltimaAtualizacao
 from .forms import DepartamentoForm, VeiculoForm, ManutencaoForm, IndisponibilidadeForm
+from .forms import ModeloVeiculoForm # Não esqueça de importar
+from .models import ModeloVeiculo # E o model também
 
 # --- Funções Auxiliares ---
 def registrar_atualizacao():
@@ -108,17 +110,20 @@ def gerenciar_veiculos(request):
         form = VeiculoForm()
 
     placa = request.GET.get('placa')
-    veiculos = Veiculo.objects.select_related('departamento').all().order_by('prefixo')
+    veiculos = Veiculo.objects.select_related('departamento', 'modelo').all().order_by('prefixo') # Adicione 'modelo' aqui
+
     if placa:
         veiculos = veiculos.filter(placa__icontains=placa)
 
     departamentos = Departamento.objects.all() # ADICIONE ESTA LINHA
+    modelos = ModeloVeiculo.objects.all() # ADICIONE ESTA LINHA
     ultima_atualizacao = UltimaAtualizacao.objects.first()
 
     context = {
         'form': form,
         'veiculos': veiculos,
-        'departamentos': departamentos, # ADICIONE ESTA LINHA
+        'departamentos': departamentos,
+        'modelos': modelos, # ADICIONE ESTA LINHA
         'ultima_atualizacao': ultima_atualizacao
     }
     return render(request, 'frota/lista_veiculos.html', context)
@@ -210,3 +215,49 @@ def tornar_disponivel(request, id):
         registrar_atualizacao()
         messages.success(request, f'Veículo {veiculo.placa} agora está disponível.')
     return redirect('gerenciar_veiculos')
+
+@login_required
+def gerenciar_modelos(request):
+    if request.method == 'POST':
+        form = ModeloVeiculoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Modelo cadastrado com sucesso!')
+            return redirect('gerenciar_modelos')
+        else:
+            messages.error(request, 'Erro ao cadastrar. O modelo já pode existir.')
+    else:
+        form = ModeloVeiculoForm()
+
+    pesquisa = request.GET.get('pesquisa')
+    modelos = ModeloVeiculo.objects.all().order_by('nome')
+    if pesquisa:
+        modelos = modelos.filter(nome__icontains=pesquisa)
+
+    context = {
+        'form': form,
+        'modelos': modelos,
+        'ultima_atualizacao': UltimaAtualizacao.objects.first()
+    }
+    return render(request, 'frota/modelos.html', context)
+
+@login_required
+def editar_modelo(request, id):
+    modelo = get_object_or_404(ModeloVeiculo, id=id)
+    if request.method == 'POST':
+        form = ModeloVeiculoForm(request.POST, instance=modelo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Modelo atualizado com sucesso!')
+            return redirect('gerenciar_modelos')
+    return redirect('gerenciar_modelos')
+
+@login_required
+def excluir_modelo(request, id):
+    modelo = get_object_or_404(ModeloVeiculo, id=id)
+    if modelo.veiculos.exists():
+        messages.error(request, 'Não é possível excluir um modelo que possui veículos associados.')
+    else:
+        modelo.delete()
+        messages.success(request, 'Modelo excluído com sucesso!')
+    return redirect('gerenciar_modelos')

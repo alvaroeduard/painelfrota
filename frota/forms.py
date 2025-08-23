@@ -1,7 +1,7 @@
 # frota/forms.py
 
 from django import forms
-from .models import Departamento, Veiculo, Manutencao, Indisponibilidade
+from .models import Departamento, Veiculo, Manutencao, Indisponibilidade, ModeloVeiculo
 
 class DepartamentoForm(forms.ModelForm):
     class Meta:
@@ -12,6 +12,14 @@ class DepartamentoForm(forms.ModelForm):
             'sigla': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+class ModeloVeiculoForm(forms.ModelForm):
+    class Meta:
+        model = ModeloVeiculo
+        fields = ['nome']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Fiat Strada'}),
+        }
+
 class VeiculoForm(forms.ModelForm):
     class Meta:
         model = Veiculo
@@ -19,7 +27,8 @@ class VeiculoForm(forms.ModelForm):
         widgets = {
             'prefixo': forms.TextInput(attrs={'class': 'form-control'}),
             'placa': forms.TextInput(attrs={'class': 'form-control'}),
-            'modelo': forms.TextInput(attrs={'class': 'form-control'}),
+            # Adicione o widget para o campo 'modelo'
+            'modelo': forms.Select(attrs={'class': 'form-select'}),
             'departamento': forms.Select(attrs={'class': 'form-select'}),
         }
 

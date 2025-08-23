@@ -30,4 +30,9 @@ urlpatterns = [
     path('painel/veiculos/manutencao/concluir/<int:id>/', views.concluir_manutencao, name='concluir_manutencao'),
     path('painel/veiculos/indisponivel/<int:id>/', views.gerenciar_indisponibilidade, name='gerenciar_indisponibilidade'),
     path('painel/veiculos/indisponivel/concluir/<int:id>/', views.tornar_disponivel, name='tornar_disponivel'),
+
+    path('painel/modelos/', views.gerenciar_modelos, name='gerenciar_modelos'),
+    path('painel/modelos/editar/<int:id>/', views.editar_modelo, name='editar_modelo'),
+    path('painel/modelos/excluir/<int:id>/', views.excluir_modelo, name='excluir_modelo'),
+
 ]

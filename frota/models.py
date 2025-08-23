@@ -3,6 +3,12 @@
 from django.db import models
 from django.utils import timezone
 
+class ModeloVeiculo(models.Model):
+    nome = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nome
+
 class Departamento(models.Model):
     nome = models.CharField(max_length=100)
     sigla = models.CharField(max_length=10, unique=True)
@@ -23,7 +29,7 @@ class Veiculo(models.Model):
 
     prefixo = models.CharField(max_length=6, unique=True)
     placa = models.CharField(max_length=10, unique=True)
-    modelo = models.CharField(max_length=50)
+    modelo = models.ForeignKey(ModeloVeiculo, on_delete=models.PROTECT, related_name='veiculos')
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='veiculos')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Disponível')
 
@@ -37,6 +43,7 @@ class Manutencao(models.Model):
         ('Aguardando Nível 1', 'Aguardando Nível 1'),
         ('Aguardando Nível 2', 'Aguardando Nível 2'),
         ('Aguardando Nível 3', 'Aguardando Nível 3'),
+        ('Aprovado', 'Aprovado'),
     ]
     veiculo = models.OneToOneField(Veiculo, on_delete=models.CASCADE, related_name='manutencao')
     servicos = models.TextField()

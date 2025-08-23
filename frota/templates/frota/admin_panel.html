@@ -7,16 +7,16 @@
     <div class="card-header">
         <h2>Painel de Administração</h2>
     </div>
-    <div class="card-body p-5">
-        <p class="lead">Selecione uma opção para gerenciar:</p>
-        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-            <a href="{% url 'gerenciar_departamentos' %}" class="btn btn-primary btn-lg px-4 gap-3">
-                <i class="fa-solid fa-building"></i> Gerenciar Departamentos
-            </a>
-            <a href="{% url 'gerenciar_veiculos' %}" class="btn btn-success btn-lg px-4">
-                <i class="fa-solid fa-car"></i> Gerenciar Veículos
-            </a>
-        </div>
+    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+        <a href="{% url 'gerenciar_departamentos' %}" class="btn btn-primary btn-lg px-4 gap-3">
+            <i class="fa-solid fa-building"></i> Gerenciar Departamentos
+        </a>
+        <a href="{% url 'gerenciar_modelos' %}" class="btn btn-info btn-lg px-4 gap-3">
+            <i class="fa-solid fa-car-rear"></i> Gerenciar Modelos
+        </a>
+        <a href="{% url 'gerenciar_veiculos' %}" class="btn btn-success btn-lg px-4">
+            <i class="fa-solid fa-car"></i> Gerenciar Veículos
+        </a>
     </div>
 </div>
 {% endblock %}

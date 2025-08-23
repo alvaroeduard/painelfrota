@@ -118,7 +118,16 @@
                 <div class="modal-body">
                     <div class="mb-3"><label class="form-label">Prefixo:</label><input type="text" name="prefixo" class="form-control" value="{{ veiculo.prefixo }}" required></div>
                     <div class="mb-3"><label class="form-label">Placa:</label><input type="text" name="placa" class="form-control" value="{{ veiculo.placa }}" required></div>
-                    <div class="mb-3"><label class="form-label">Modelo:</label><input type="text" name="modelo" class="form-control" value="{{ veiculo.modelo }}" required></div>
+                    <div class="mb-3">
+                        <label class="form-label">Modelo:</label>
+                        <select name="modelo" class="form-select" required>
+                            {% for modelo_obj in modelos %}
+                            <option value="{{ modelo_obj.id }}" {% if modelo_obj.id == veiculo.modelo.id %}selected{% endif %}>
+                                {{ modelo_obj.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="mb-3"><label class="form-label">Departamento:</label>
                         <select name="departamento" class="form-select" required>
                             {% for depto in departamentos %}  <option value="{{ depto.id }}" {% if depto.id == veiculo.departamento.id %}selected{% endif %}>{{ depto }}</option>
