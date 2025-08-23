@@ -95,7 +95,17 @@ def excluir_departamento(request, id):
 
 @login_required
 def gerenciar_veiculos(request):
-    # ... (início da função) ...
+    if request.method == 'POST':
+        form = VeiculoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            registrar_atualizacao()
+            messages.success(request, 'Veículo cadastrado com sucesso!')
+            return redirect('gerenciar_veiculos')
+        else:
+            messages.error(request, 'Erro ao cadastrar. Verifique os dados (placa e prefixo não podem ser duplicados).')
+    else:
+        form = VeiculoForm()
 
     placa = request.GET.get('placa')
     veiculos = Veiculo.objects.select_related('departamento').all().order_by('prefixo')
