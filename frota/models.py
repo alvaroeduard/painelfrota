@@ -47,6 +47,7 @@ class Manutencao(models.Model):
     ]
     veiculo = models.OneToOneField(Veiculo, on_delete=models.CASCADE, related_name='manutencao')
     servicos = models.TextField()
+    nome_oficina = models.CharField(max_length=100, blank=True, verbose_name="Nome da Oficina")
     data_entrada = models.DateField(default=timezone.now)
     data_previsao_saida = models.DateField(null=True, blank=True)
     numero_os = models.CharField(max_length=50, verbose_name="Número da OS/Ticket")

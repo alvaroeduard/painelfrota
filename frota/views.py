@@ -20,23 +20,33 @@ def registrar_atualizacao():
 def index(request):
     placa = request.GET.get('placa')
     depto_id = request.GET.get('departamento')
-    
+    status_selecionado = request.GET.get('status') # 1. MUDANÇA: Nome do filtro
+
     veiculos = Veiculo.objects.select_related('departamento', 'manutencao', 'indisponibilidade').all().order_by('prefixo')
 
     if placa:
         veiculos = veiculos.filter(placa__icontains=placa)
-    
+
     if depto_id:
         veiculos = veiculos.filter(departamento_id=depto_id)
-        
+
+    # 2. MUDANÇA: Lógica do filtro
+    if status_selecionado:
+        veiculos = veiculos.filter(status=status_selecionado)
+
     departamentos = Departamento.objects.all().order_by('sigla')
     ultima_atualizacao = UltimaAtualizacao.objects.first()
+
+    # 3. MUDANÇA: Pega as opções de status do model Veiculo
+    status_choices = Veiculo.STATUS_CHOICES
 
     context = {
         'veiculos': veiculos,
         'departamentos': departamentos,
         'ultima_atualizacao': ultima_atualizacao,
-        'depto_id_selecionado': int(depto_id) if depto_id else None
+        'depto_id_selecionado': int(depto_id) if depto_id else None,
+        'status_choices': status_choices, # Envia a lista correta
+        'status_selecionado': status_selecionado, # Envia o valor selecionado
     }
     return render(request, 'frota/index.html', context)
 

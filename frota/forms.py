@@ -35,9 +35,10 @@ class VeiculoForm(forms.ModelForm):
 class ManutencaoForm(forms.ModelForm):
     class Meta:
         model = Manutencao
-        fields = ['servicos', 'data_entrada', 'data_previsao_saida', 'numero_os', 'status_os']
+        fields = ['servicos', 'nome_oficina', 'data_entrada', 'data_previsao_saida', 'numero_os', 'status_os']
         widgets = {
             'servicos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'nome_oficina': forms.TextInput(attrs={'class': 'form-control'}),
             'data_entrada': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'data_previsao_saida': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'numero_os': forms.TextInput(attrs={'class': 'form-control'}),

@@ -9,10 +9,11 @@
     </div>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-center mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="text" name="placa" class="form-control" placeholder="Pesquisar por placa..." value="{{ request.GET.placa|default:'' }}">
             </div>
-            <div class="col-md-4">
+
+            <div class="col-md-3">
                 <select name="departamento" class="form-select">
                     <option value="">Filtrar por departamento...</option>
                     {% for depto in departamentos %}
@@ -22,7 +23,19 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
+
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">Filtrar por Status...</option>
+                    {% for value, display_name in status_choices %}
+                    <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>
+                        {{ display_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
                 <a href="{% url 'index' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Limpar</a>
             </div>
@@ -75,15 +88,16 @@
                         <td>
                             {% if veiculo.status == 'Em Manutenção' %}
                             <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesManutencaoModal"
-                                data-placa="{{ veiculo.placa }}"
-                                data-prefixo="{{ veiculo.prefixo }}"
-                                data-modelo="{{ veiculo.modelo }}"
-                                data-servicos="{{ veiculo.manutencao.servicos }}"
-                                data-entrada="{{ veiculo.manutencao.data_entrada|date:'d/m/Y' }}"
-                                data-previsao="{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}"
-                                data-os="{{ veiculo.manutencao.numero_os }}"
-                                data-statusos="{{ veiculo.manutencao.status_os }}">
-                                <i class="fas fa-wrench"></i> Detalhes
+                            data-placa="{{ veiculo.placa }}"
+                            data-prefixo="{{ veiculo.prefixo }}"
+                            data-modelo="{{ veiculo.modelo.nome }}"
+                            data-servicos="{{ veiculo.manutencao.servicos }}"
+                            data-oficina="{{ veiculo.manutencao.nome_oficina|default:'N/A' }}"
+                            data-entrada="{{ veiculo.manutencao.data_entrada|date:'d/m/Y' }}"
+                            data-previsao="{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}"
+                            data-os="{{ veiculo.manutencao.numero_os }}"
+                            data-statusos="{{ veiculo.manutencao.status_os }}">
+                            <i class="fas fa-wrench"></i> Detalhes
                             </button>
                             {% elif veiculo.status == 'Indisponível' %}
                             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesIndisponivelModal"
@@ -120,6 +134,7 @@
                 <p><strong>Modelo:</strong> <span id="manut-modelo"></span></p>
                 <hr>
                 <p><strong>Serviços:</strong> <span id="manut-servicos"></span></p>
+                <p><strong>Oficina:</strong> <span id="manut-oficina"></span></p>
                 <p><strong>Data de Entrada:</strong> <span id="manut-entrada"></span></p>
                 <p><strong>Previsão de Saída:</strong> <span id="manut-previsao"></span></p>
                 <p><strong>Número da OS/Ticket:</strong> <span id="manut-os"></span></p>
@@ -165,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('manut-prefixo').textContent = button.getAttribute('data-prefixo');
             document.getElementById('manut-modelo').textContent = button.getAttribute('data-modelo');
             document.getElementById('manut-servicos').textContent = button.getAttribute('data-servicos');
+            document.getElementById('manut-oficina').textContent = button.getAttribute('data-oficina');
             document.getElementById('manut-entrada').textContent = button.getAttribute('data-entrada');
             document.getElementById('manut-previsao').textContent = button.getAttribute('data-previsao');
             document.getElementById('manut-os').textContent = button.getAttribute('data-os');
