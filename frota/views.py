@@ -6,8 +6,8 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Veiculo, Departamento, Manutencao, Indisponibilidade, UltimaAtualizacao
 from .forms import DepartamentoForm, VeiculoForm, ManutencaoForm, IndisponibilidadeForm
-from .forms import ModeloVeiculoForm # Não esqueça de importar
-from .models import ModeloVeiculo # E o model também
+from .forms import ModeloVeiculoForm, RegionalForm
+from .models import ModeloVeiculo, Regional
 
 # --- Funções Auxiliares ---
 def registrar_atualizacao():
@@ -18,35 +18,47 @@ def registrar_atualizacao():
 
 # --- Views Públicas ---
 def index(request):
+    """
+    Exibe a página inicial com a lista de veículos e os filtros de pesquisa.
+    """
+    # Pega todos os parâmetros de filtro da URL (GET request)
     placa = request.GET.get('placa')
     depto_id = request.GET.get('departamento')
-    status_selecionado = request.GET.get('status') # 1. MUDANÇA: Nome do filtro
+    status_selecionado = request.GET.get('status')
+    regional_id = request.GET.get('regional')
 
-    veiculos = Veiculo.objects.select_related('departamento', 'manutencao', 'indisponibilidade').all().order_by('prefixo')
+    # Inicia a busca por todos os veículos, já otimizando a consulta ao banco de dados
+    veiculos = Veiculo.objects.select_related('departamento', 'modelo', 'regional', 'manutencao', 'indisponibilidade').all().order_by('prefixo')
 
+    # Aplica os filtros um a um, se eles existirem
     if placa:
         veiculos = veiculos.filter(placa__icontains=placa)
-
+    
     if depto_id:
         veiculos = veiculos.filter(departamento_id=depto_id)
-
-    # 2. MUDANÇA: Lógica do filtro
+    
     if status_selecionado:
         veiculos = veiculos.filter(status=status_selecionado)
 
+    if regional_id:
+        veiculos = veiculos.filter(regional_id=regional_id)
+            
+    # Busca os dados necessários para preencher os filtros na página
     departamentos = Departamento.objects.all().order_by('sigla')
+    regionais = Regional.objects.all().order_by('sigla')
+    status_choices = Veiculo.STATUS_CHOICES
     ultima_atualizacao = UltimaAtualizacao.objects.first()
 
-    # 3. MUDANÇA: Pega as opções de status do model Veiculo
-    status_choices = Veiculo.STATUS_CHOICES
-
+    # Monta o contexto que será enviado para o template HTML
     context = {
         'veiculos': veiculos,
         'departamentos': departamentos,
+        'regionais': regionais,
+        'status_choices': status_choices,
         'ultima_atualizacao': ultima_atualizacao,
         'depto_id_selecionado': int(depto_id) if depto_id else None,
-        'status_choices': status_choices, # Envia a lista correta
-        'status_selecionado': status_selecionado, # Envia o valor selecionado
+        'status_selecionado': status_selecionado,
+        'regional_id_selecionado': int(regional_id) if regional_id else None,
     }
     return render(request, 'frota/index.html', context)
 
@@ -120,13 +132,14 @@ def gerenciar_veiculos(request):
         form = VeiculoForm()
 
     placa = request.GET.get('placa')
-    veiculos = Veiculo.objects.select_related('departamento', 'modelo').all().order_by('prefixo') # Adicione 'modelo' aqui
+    veiculos = Veiculo.objects.select_related('departamento', 'modelo', 'regional').all().order_by('prefixo') # Adicione 'modelo' aqui
 
     if placa:
         veiculos = veiculos.filter(placa__icontains=placa)
 
     departamentos = Departamento.objects.all() # ADICIONE ESTA LINHA
     modelos = ModeloVeiculo.objects.all() # ADICIONE ESTA LINHA
+    regionais = Regional.objects.all()
     ultima_atualizacao = UltimaAtualizacao.objects.first()
 
     context = {
@@ -134,6 +147,7 @@ def gerenciar_veiculos(request):
         'veiculos': veiculos,
         'departamentos': departamentos,
         'modelos': modelos, # ADICIONE ESTA LINHA
+        'regionais': regionais,
         'ultima_atualizacao': ultima_atualizacao
     }
     return render(request, 'frota/lista_veiculos.html', context)
@@ -271,3 +285,60 @@ def excluir_modelo(request, id):
         modelo.delete()
         messages.success(request, 'Modelo excluído com sucesso!')
     return redirect('gerenciar_modelos')
+
+@login_required
+def gerenciar_regionais(request):
+    """
+    Gerencia o cadastro, listagem e pesquisa de Regionais.
+    """
+    if request.method == 'POST':
+        form = RegionalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Regional cadastrada com sucesso!')
+            return redirect('gerenciar_regionais')
+        else:
+            messages.error(request, 'Erro ao cadastrar. Verifique se a sigla já existe.')
+    else:
+        form = RegionalForm()
+    
+    pesquisa = request.GET.get('pesquisa')
+    regionais = Regional.objects.all().order_by('nome')
+    if pesquisa:
+        regionais = regionais.filter(Q(nome__icontains=pesquisa) | Q(sigla__icontains=pesquisa))
+
+    ultima_atualizacao = UltimaAtualizacao.objects.first()
+    context = {
+        'form': form,
+        'regionais': regionais,
+        'ultima_atualizacao': ultima_atualizacao
+    }
+    return render(request, 'frota/regionais.html', context)
+
+@login_required
+def editar_regional(request, id):
+    """
+    Edita uma Regional existente.
+    """
+    regional = get_object_or_404(Regional, id=id)
+    if request.method == 'POST':
+        form = RegionalForm(request.POST, instance=regional)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Regional atualizada com sucesso!')
+            return redirect('gerenciar_regionais')
+    # Se o método não for POST, apenas redireciona de volta, pois a edição é via modal.
+    return redirect('gerenciar_regionais')
+
+@login_required
+def excluir_regional(request, id):
+    """
+    Exclui uma Regional, com verificação para não excluir se houver veículos associados.
+    """
+    regional = get_object_or_404(Regional, id=id)
+    if regional.veiculos.exists():
+        messages.error(request, f'Não é possível excluir a regional "{regional.sigla}" pois ela possui veículos associados.')
+    else:
+        regional.delete()
+        messages.success(request, 'Regional excluída com sucesso!')
+    return redirect('gerenciar_regionais')

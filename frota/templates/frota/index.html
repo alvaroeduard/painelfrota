@@ -12,6 +12,17 @@
             <div class="col-md-3">
                 <input type="text" name="placa" class="form-control" placeholder="Pesquisar por placa..." value="{{ request.GET.placa|default:'' }}">
             </div>
+            
+            <div class="col-md-2">
+                <select name="regional" class="form-select">
+                    <option value="">Filtrar por Regional...</option>
+                    {% for regional in regionais %}
+                    <option value="{{ regional.id }}" {% if regional.id == regional_id_selecionado %}selected{% endif %}>
+                        {{ regional.sigla }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <div class="col-md-3">
                 <select name="departamento" class="form-select">
@@ -49,6 +60,7 @@
                         <th>Modelo</th>
                         <th>Placa</th>
                         <th>Departamento</th>
+                        <th>Regional</th>
                         <th>Status</th>
                         <th>OS/Ticket</th>
                         <th>Status OS</th>
@@ -62,6 +74,7 @@
                         <td>{{ veiculo.modelo }}</td>
                         <td>{{ veiculo.placa }}</td>
                         <td>{{ veiculo.departamento.sigla }}</td>
+                        <td>{{ veiculo.regional.sigla }}</td>
                         <td>
                             {% if veiculo.status == 'Disponível' %}
                             <span class="badge badge-disponivel">{{ veiculo.status }}</span>
@@ -88,16 +101,16 @@
                         <td>
                             {% if veiculo.status == 'Em Manutenção' %}
                             <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesManutencaoModal"
-                            data-placa="{{ veiculo.placa }}"
-                            data-prefixo="{{ veiculo.prefixo }}"
-                            data-modelo="{{ veiculo.modelo.nome }}"
-                            data-servicos="{{ veiculo.manutencao.servicos }}"
-                            data-oficina="{{ veiculo.manutencao.nome_oficina|default:'N/A' }}"
-                            data-entrada="{{ veiculo.manutencao.data_entrada|date:'d/m/Y' }}"
-                            data-previsao="{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}"
-                            data-os="{{ veiculo.manutencao.numero_os }}"
-                            data-statusos="{{ veiculo.manutencao.status_os }}">
-                            <i class="fas fa-wrench"></i> Detalhes
+                                data-placa="{{ veiculo.placa }}"
+                                data-prefixo="{{ veiculo.prefixo }}"
+                                data-modelo="{{ veiculo.modelo.nome }}"
+                                data-servicos="{{ veiculo.manutencao.servicos }}"
+                                data-oficina="{{ veiculo.manutencao.nome_oficina|default:'N/A' }}"
+                                data-cidade="{{ veiculo.manutencao.cidade_oficina|default:'N/A' }}" data-entrada="{{ veiculo.manutencao.data_entrada|date:'d/m/Y' }}"
+                                data-previsao="{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}"
+                                data-os="{{ veiculo.manutencao.numero_os }}"
+                                data-statusos="{{ veiculo.manutencao.status_os }}">
+                                <i class="fas fa-wrench"></i> Detalhes
                             </button>
                             {% elif veiculo.status == 'Indisponível' %}
                             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#detalhesIndisponivelModal"
@@ -135,7 +148,7 @@
                 <hr>
                 <p><strong>Serviços:</strong> <span id="manut-servicos"></span></p>
                 <p><strong>Oficina:</strong> <span id="manut-oficina"></span></p>
-                <p><strong>Data de Entrada:</strong> <span id="manut-entrada"></span></p>
+                <p><strong>Cidade da Oficina:</strong> <span id="manut-cidade"></span></p> <p><strong>Data de Entrada:</strong> <span id="manut-entrada"></span></p>
                 <p><strong>Previsão de Saída:</strong> <span id="manut-previsao"></span></p>
                 <p><strong>Número da OS/Ticket:</strong> <span id="manut-os"></span></p>
                 <p><strong>Status da OS:</strong> <span id="manut-statusos"></span></p>
@@ -181,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('manut-modelo').textContent = button.getAttribute('data-modelo');
             document.getElementById('manut-servicos').textContent = button.getAttribute('data-servicos');
             document.getElementById('manut-oficina').textContent = button.getAttribute('data-oficina');
+            document.getElementById('manut-cidade').textContent = button.getAttribute('data-cidade'); // ADICIONE ESTA LINHA
             document.getElementById('manut-entrada').textContent = button.getAttribute('data-entrada');
             document.getElementById('manut-previsao').textContent = button.getAttribute('data-previsao');
             document.getElementById('manut-os').textContent = button.getAttribute('data-os');

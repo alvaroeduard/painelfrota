@@ -1,0 +1,136 @@
+{% extends 'frota/base.html' %}
+
+{% block titulo %}Gerenciar Regionais{% endblock %}
+
+{% block conteudo %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Gerenciar Regionais</h4>
+        <div>
+            <a href="{% url 'admin_panel' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#novaRegionalModal">
+                <i class="fas fa-plus"></i> Nova Regional
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center mb-4">
+            <div class="col-md-8">
+                <input type="text" name="pesquisa" class="form-control" placeholder="Pesquisar por nome ou sigla..." value="{{ request.GET.pesquisa|default:'' }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+                <a href="{% url 'gerenciar_regionais' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Recarregar</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nome da Regional</th>
+                        <th>Sigla</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for regional in regionais %}
+                    <tr>
+                        <td>{{ regional.nome }}</td>
+                        <td>{{ regional.sigla }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarRegionalModal-{{ regional.id }}" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirRegionalModal-{{ regional.id }}" title="Remover">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">Nenhuma regional cadastrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="novaRegionalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'gerenciar_regionais' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Regional</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for regional in regionais %}
+<div class="modal fade" id="editarRegionalModal-{{ regional.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'editar_regional' regional.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Regional</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome:</label>
+                        <input type="text" name="nome" class="form-control" value="{{ regional.nome }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sigla (em maiúsculo):</label>
+                        <input type="text" name="sigla" class="form-control" value="{{ regional.sigla }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="excluirRegionalModal-{{ regional.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza de que deseja excluir a regional "<strong>{{ regional.nome }}</strong>"?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+                <form method="post" action="{% url 'excluir_regional' regional.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

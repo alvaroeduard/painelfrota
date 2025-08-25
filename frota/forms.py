@@ -1,7 +1,7 @@
 # frota/forms.py
 
 from django import forms
-from .models import Departamento, Veiculo, Manutencao, Indisponibilidade, ModeloVeiculo
+from .models import Departamento, Veiculo, Manutencao, Indisponibilidade, ModeloVeiculo, Regional
 
 class DepartamentoForm(forms.ModelForm):
     class Meta:
@@ -20,25 +20,31 @@ class ModeloVeiculoForm(forms.ModelForm):
             'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Fiat Strada'}),
         }
 
+class RegionalForm(forms.ModelForm):
+    class Meta:
+        model = Regional
+        fields = ['nome', 'sigla']
+
 class VeiculoForm(forms.ModelForm):
     class Meta:
         model = Veiculo
-        fields = ['prefixo', 'placa', 'modelo', 'departamento']
+        fields = ['prefixo', 'placa', 'modelo', 'regional', 'departamento']
         widgets = {
             'prefixo': forms.TextInput(attrs={'class': 'form-control'}),
             'placa': forms.TextInput(attrs={'class': 'form-control'}),
-            # Adicione o widget para o campo 'modelo'
             'modelo': forms.Select(attrs={'class': 'form-select'}),
+            'regional': forms.Select(attrs={'class': 'form-select'}), # Adicione o widget
             'departamento': forms.Select(attrs={'class': 'form-select'}),
         }
 
 class ManutencaoForm(forms.ModelForm):
     class Meta:
         model = Manutencao
-        fields = ['servicos', 'nome_oficina', 'data_entrada', 'data_previsao_saida', 'numero_os', 'status_os']
+        fields = ['servicos', 'nome_oficina', 'cidade_oficina', 'data_entrada', 'data_previsao_saida', 'numero_os', 'status_os']
         widgets = {
             'servicos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'nome_oficina': forms.TextInput(attrs={'class': 'form-control'}),
+            'cidade_oficina': forms.TextInput(attrs={'class': 'form-control'}), # Adicione
             'data_entrada': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'data_previsao_saida': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'numero_os': forms.TextInput(attrs={'class': 'form-control'}),

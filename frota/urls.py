@@ -35,4 +35,7 @@ urlpatterns = [
     path('painel/modelos/editar/<int:id>/', views.editar_modelo, name='editar_modelo'),
     path('painel/modelos/excluir/<int:id>/', views.excluir_modelo, name='excluir_modelo'),
 
+    path('painel/regionais/', views.gerenciar_regionais, name='gerenciar_regionais'),
+    path('painel/regionais/editar/<int:id>/', views.editar_regional, name='editar_regional'),
+    path('painel/regionais/excluir/<int:id>/', views.excluir_regional, name='excluir_regional'),
 ]

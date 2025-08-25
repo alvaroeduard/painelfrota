@@ -8,6 +8,17 @@ class ModeloVeiculo(models.Model):
 
     def __str__(self):
         return self.nome
+    
+class Regional(models.Model):
+    nome = models.CharField(max_length=100)
+    sigla = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.sigla
+
+    def save(self, *args, **kwargs):
+        self.sigla = self.sigla.upper().strip()
+        super(Regional, self).save(*args, **kwargs)
 
 class Departamento(models.Model):
     nome = models.CharField(max_length=100)
@@ -30,6 +41,7 @@ class Veiculo(models.Model):
     prefixo = models.CharField(max_length=6, unique=True)
     placa = models.CharField(max_length=10, unique=True)
     modelo = models.ForeignKey(ModeloVeiculo, on_delete=models.PROTECT, related_name='veiculos')
+    regional = models.ForeignKey(Regional, on_delete=models.PROTECT, related_name='veiculos')
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='veiculos')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Disponível')
 
@@ -48,6 +60,7 @@ class Manutencao(models.Model):
     veiculo = models.OneToOneField(Veiculo, on_delete=models.CASCADE, related_name='manutencao')
     servicos = models.TextField()
     nome_oficina = models.CharField(max_length=100, blank=True, verbose_name="Nome da Oficina")
+    cidade_oficina = models.CharField(max_length=100, blank=True, verbose_name="Cidade da Oficina")
     data_entrada = models.DateField(default=timezone.now)
     data_previsao_saida = models.DateField(null=True, blank=True)
     numero_os = models.CharField(max_length=50, verbose_name="Número da OS/Ticket")
