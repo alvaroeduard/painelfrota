@@ -28,11 +28,13 @@ class RegionalForm(forms.ModelForm):
 class VeiculoForm(forms.ModelForm):
     class Meta:
         model = Veiculo
-        fields = ['prefixo', 'placa', 'modelo', 'regional', 'departamento']
+        fields = ['prefixo', 'placa', 'modelo', 'tipo_veiculo', 'segmento', 'regional', 'departamento']
         widgets = {
             'prefixo': forms.TextInput(attrs={'class': 'form-control'}),
             'placa': forms.TextInput(attrs={'class': 'form-control'}),
             'modelo': forms.Select(attrs={'class': 'form-select'}),
+            'tipo_veiculo': forms.Select(attrs={'class': 'form-select'}),
+            'segmento': forms.Select(attrs={'class': 'form-select'}),
             'regional': forms.Select(attrs={'class': 'form-select'}), # Adicione o widget
             'departamento': forms.Select(attrs={'class': 'form-select'}),
         }

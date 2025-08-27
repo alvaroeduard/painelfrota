@@ -32,6 +32,21 @@ class Departamento(models.Model):
         super(Departamento, self).save(*args, **kwargs)
 
 class Veiculo(models.Model):
+
+    # Opções para os novos campos
+    TIPO_VEICULO_CHOICES = [
+        ('LEVE', 'Leve'),
+        ('MEDIO', 'Médio'),
+        ('PESADO', 'Pesado'),
+        ('EQUIPAMENTO', 'Equipamento'),
+    ]
+
+    SEGMENTO_CHOICES = [
+        ('LT', 'Linha de Transmissão'),
+        ('SE', 'Subestação'),
+        ('N/A', 'Não Aplicável'),
+    ]
+
     STATUS_CHOICES = [
         ('Disponível', 'Disponível'),
         ('Em Manutenção', 'Em Manutenção'),
@@ -41,6 +56,8 @@ class Veiculo(models.Model):
     prefixo = models.CharField(max_length=6, unique=True)
     placa = models.CharField(max_length=10, unique=True)
     modelo = models.ForeignKey(ModeloVeiculo, on_delete=models.PROTECT, related_name='veiculos')
+    tipo_veiculo = models.CharField(max_length=20, choices=TIPO_VEICULO_CHOICES, default='LEVE')
+    segmento = models.CharField(max_length=5, choices=SEGMENTO_CHOICES, default='N/A')
     regional = models.ForeignKey(Regional, on_delete=models.PROTECT, related_name='veiculos')
     departamento = models.ForeignKey(Departamento, on_delete=models.PROTECT, related_name='veiculos')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Disponível')

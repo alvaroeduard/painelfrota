@@ -26,6 +26,8 @@ def index(request):
     depto_id = request.GET.get('departamento')
     status_selecionado = request.GET.get('status')
     regional_id = request.GET.get('regional')
+    tipo_veiculo_selecionado = request.GET.get('tipo_veiculo')
+    segmento_selecionado = request.GET.get('segmento')
 
     # Inicia a busca por todos os veículos, já otimizando a consulta ao banco de dados
     veiculos = Veiculo.objects.select_related('departamento', 'modelo', 'regional', 'manutencao', 'indisponibilidade').all().order_by('prefixo')
@@ -42,12 +44,21 @@ def index(request):
 
     if regional_id:
         veiculos = veiculos.filter(regional_id=regional_id)
-            
+
+    if tipo_veiculo_selecionado:
+        veiculos = veiculos.filter(tipo_veiculo=tipo_veiculo_selecionado)
+
+    if segmento_selecionado:
+        veiculos = veiculos.filter(segmento=segmento_selecionado)       
+
     # Busca os dados necessários para preencher os filtros na página
     departamentos = Departamento.objects.all().order_by('sigla')
     regionais = Regional.objects.all().order_by('sigla')
     status_choices = Veiculo.STATUS_CHOICES
+    tipo_veiculo_choices = Veiculo.TIPO_VEICULO_CHOICES
+    segmento_choices = Veiculo.SEGMENTO_CHOICES
     ultima_atualizacao = UltimaAtualizacao.objects.first()
+
 
     # Monta o contexto que será enviado para o template HTML
     context = {
@@ -55,10 +66,14 @@ def index(request):
         'departamentos': departamentos,
         'regionais': regionais,
         'status_choices': status_choices,
+        'tipo_veiculo_choices': tipo_veiculo_choices,
+        'segmento_choices': segmento_choices,
         'ultima_atualizacao': ultima_atualizacao,
         'depto_id_selecionado': int(depto_id) if depto_id else None,
         'status_selecionado': status_selecionado,
         'regional_id_selecionado': int(regional_id) if regional_id else None,
+        'tipo_veiculo_selecionado': tipo_veiculo_selecionado, 
+        'segmento_selecionado': segmento_selecionado,       
     }
     return render(request, 'frota/index.html', context)
 
@@ -140,6 +155,8 @@ def gerenciar_veiculos(request):
     departamentos = Departamento.objects.all() # ADICIONE ESTA LINHA
     modelos = ModeloVeiculo.objects.all() # ADICIONE ESTA LINHA
     regionais = Regional.objects.all()
+    tipo_veiculo_choices = Veiculo.TIPO_VEICULO_CHOICES
+    segmento_choices = Veiculo.SEGMENTO_CHOICES
     ultima_atualizacao = UltimaAtualizacao.objects.first()
 
     context = {
@@ -148,6 +165,8 @@ def gerenciar_veiculos(request):
         'departamentos': departamentos,
         'modelos': modelos, # ADICIONE ESTA LINHA
         'regionais': regionais,
+        'tipo_veiculo_choices': tipo_veiculo_choices,
+        'segmento_choices': segmento_choices,
         'ultima_atualizacao': ultima_atualizacao
     }
     return render(request, 'frota/lista_veiculos.html', context)

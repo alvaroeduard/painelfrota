@@ -9,44 +9,56 @@
     </div>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-center mb-4">
-            <div class="col-md-3">
+            <div class="col-lg-3 col-md-6">
                 <input type="text" name="placa" class="form-control" placeholder="Pesquisar por placa..." value="{{ request.GET.placa|default:'' }}">
             </div>
-            
-            <div class="col-md-2">
+            <div class="col-lg-3 col-md-6">
                 <select name="regional" class="form-select">
                     <option value="">Filtrar por Regional...</option>
                     {% for regional in regionais %}
-                    <option value="{{ regional.id }}" {% if regional.id == regional_id_selecionado %}selected{% endif %}>
-                        {{ regional.sigla }}
-                    </option>
+                    <option value="{{ regional.id }}" {% if regional.id == regional_id_selecionado %}selected{% endif %}>{{ regional.sigla }}</option>
                     {% endfor %}
                 </select>
             </div>
-
-            <div class="col-md-3">
+            <div class="col-lg-3 col-md-6">
                 <select name="departamento" class="form-select">
                     <option value="">Filtrar por departamento...</option>
                     {% for depto in departamentos %}
-                    <option value="{{ depto.id }}" {% if depto.id == depto_id_selecionado %}selected{% endif %}>
-                        {{ depto.sigla }} - {{ depto.nome }}
-                    </option>
+                    <option value="{{ depto.id }}" {% if depto.id == depto_id_selecionado %}selected{% endif %}>{{ depto.sigla }} - {{ depto.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <select name="status" class="form-select">
+                    <option value="">Filtrar por Status...</option>
+                    {% for value, display_name in status_choices %}
+                    <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display_name }}</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="">Filtrar por Status...</option>
-                    {% for value, display_name in status_choices %}
-                    <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>
+            <div class="col-lg-3 col-md-6">
+                <select name="tipo_veiculo" class="form-select">
+                    <option value="">Filtrar por Tipo...</option>
+                    {% for value, display_name in tipo_veiculo_choices %}
+                    <option value="{{ value }}" {% if value == tipo_veiculo_selecionado %}selected{% endif %}>
                         {{ display_name }}
                     </option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-lg-3 col-md-6">
+                <select name="segmento" class="form-select">
+                    <option value="">Filtrar por Segmento...</option>
+                    {% for value, display_name in segmento_choices %}
+                    <option value="{{ value }}" {% if value == segmento_selecionado %}selected{% endif %}>
+                        {{ display_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-6 col-md-12">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
                 <a href="{% url 'index' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Limpar</a>
             </div>
