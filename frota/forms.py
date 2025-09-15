@@ -47,8 +47,8 @@ class ManutencaoForm(forms.ModelForm):
             'servicos': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'nome_oficina': forms.TextInput(attrs={'class': 'form-control'}),
             'cidade_oficina': forms.TextInput(attrs={'class': 'form-control'}), # Adicione
-            'data_entrada': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'data_previsao_saida': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'data_entrada': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
+            'data_previsao_saida': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
             'numero_os': forms.TextInput(attrs={'class': 'form-control'}),
             'status_os': forms.Select(attrs={'class': 'form-select'}),
         }
