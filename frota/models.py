@@ -74,6 +74,7 @@ class Manutencao(models.Model):
         ('Aguardando Nível 3', 'Aguardando Nível 3'),
         ('Aprovado', 'Aprovado'),
         ('Garantia', 'Garantia'),
+        ('N/A', 'N/A'),
     ]
     veiculo = models.OneToOneField(Veiculo, on_delete=models.CASCADE, related_name='manutencao')
     servicos = models.TextField()
