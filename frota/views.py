@@ -146,16 +146,22 @@ def gerenciar_veiculos(request):
     else:
         form = VeiculoForm()
 
+    status_selecionado = request.GET.get('status')
+
     placa = request.GET.get('placa')
     veiculos = Veiculo.objects.select_related('departamento', 'modelo', 'regional').all().order_by('prefixo') # Adicione 'modelo' aqui
 
     if placa:
         veiculos = veiculos.filter(placa__icontains=placa)
 
+    if status_selecionado:
+        veiculos = veiculos.filter(status=status_selecionado)
+
     departamentos = Departamento.objects.all() # ADICIONE ESTA LINHA
     modelos = ModeloVeiculo.objects.all() # ADICIONE ESTA LINHA
     regionais = Regional.objects.all()
     tipo_veiculo_choices = Veiculo.TIPO_VEICULO_CHOICES
+    status_choices = Veiculo.STATUS_CHOICES
     segmento_choices = Veiculo.SEGMENTO_CHOICES
     ultima_atualizacao = UltimaAtualizacao.objects.first()
 
@@ -165,6 +171,7 @@ def gerenciar_veiculos(request):
         'departamentos': departamentos,
         'modelos': modelos, # ADICIONE ESTA LINHA
         'regionais': regionais,
+        'status_choices': status_choices,
         'tipo_veiculo_choices': tipo_veiculo_choices,
         'segmento_choices': segmento_choices,
         'ultima_atualizacao': ultima_atualizacao

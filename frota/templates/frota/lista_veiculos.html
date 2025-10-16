@@ -23,6 +23,14 @@
             <div class="col-md-8">
                 <input type="text" name="placa" class="form-control" placeholder="Pesquisar por placa..." value="{{ request.GET.placa|default:'' }}">
             </div>
+            <div class="col-lg-3 col-md-6">
+                <select name="status" class="form-select">
+                    <option value="">Filtrar por Status...</option>
+                    {% for value, display_name in status_choices %}
+                    <option value="{{ value }}" {% if value == status_selecionado %}selected{% endif %}>{{ display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
                 <a href="{% url 'gerenciar_veiculos' %}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Recarregar</a>
