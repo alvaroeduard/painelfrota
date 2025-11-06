@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "pweb/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "pweb/wsgi.py"
+    }
+  ]
+}
