@@ -2,7 +2,11 @@
   "builds": [
     {
       "src": "pweb/wsgi.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.12",
+        "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --no-input"
+      }
     }
   ],
   "routes": [
