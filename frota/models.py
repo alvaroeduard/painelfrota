@@ -68,10 +68,7 @@ class Veiculo(models.Model):
 class Manutencao(models.Model):
     STATUS_OS_CHOICES = [
         ('Aguardando Orçamento', 'Aguardando Orçamento'),
-        ('Aguardando Nível 0', 'Aguardando Nível 0'),
-        ('Aguardando Nível 1', 'Aguardando Nível 1'),
-        ('Aguardando Nível 2', 'Aguardando Nível 2'),
-        ('Aguardando Nível 3', 'Aguardando Nível 3'),
+        ('Aguardando Aprovação', 'Aguardando Aprovação'),
         ('Aprovado', 'Aprovado'),
         ('Garantia', 'Garantia'),
         ('N/A', 'N/A'),

@@ -74,6 +74,7 @@
                         <th>Departamento</th>
                         <th>Regional</th>
                         <th>Status</th>
+                        <th>Data Previsão de Saida</th>
                         <th>OS/Ticket</th>
                         <th>Status OS</th>
                         <th>Ações</th>
@@ -96,6 +97,7 @@
                             <span class="badge badge-indisponivel">{{ veiculo.status }}</span>
                             {% endif %}
                         </td>
+                        <td>{{ veiculo.manutencao.data_previsao_saida|date:'d/m/Y'|default:'N/A' }}</td>
                         <td>
                             {% if veiculo.status == 'Em Manutenção' and veiculo.manutencao %}
                                 {{ veiculo.manutencao.numero_os }}
