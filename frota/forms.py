@@ -38,6 +38,16 @@ class VeiculoForm(forms.ModelForm):
             'regional': forms.Select(attrs={'class': 'form-select'}), # Adicione o widget
             'departamento': forms.Select(attrs={'class': 'form-select'}),
         }
+    def clean_prefixo(self):
+        """
+        Garante que, se o campo estiver vazio, seja salvo como None (NULL) no banco,
+        e não como uma string vazia (""). Isso permite múltiplos veículos sem prefixo
+        mesmo com unique=True.
+        """
+        prefixo = self.cleaned_data.get('prefixo')
+        if not prefixo:
+            return None
+        return prefixo
 
 class ManutencaoForm(forms.ModelForm):
     class Meta:
